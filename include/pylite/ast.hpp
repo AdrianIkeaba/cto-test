@@ -117,6 +117,8 @@ enum class StatementKind {
     Expression,
     Assignment,
     Block,
+    If,
+    While,
 };
 
 class Statement : public Node {
@@ -168,6 +170,41 @@ public:
 
 private:
     std::vector<Statement::Ptr> statements_;
+};
+
+class IfStmt : public Statement {
+public:
+    using Ptr = std::shared_ptr<IfStmt>;
+
+    IfStmt(Expression::Ptr condition, BlockStmt::Ptr thenBranch, Statement::Ptr elseBranch, SourceLocation location)
+        : Statement(StatementKind::If, location),
+          condition_(std::move(condition)),
+          thenBranch_(std::move(thenBranch)),
+          elseBranch_(std::move(elseBranch)) {}
+
+    [[nodiscard]] const Expression::Ptr &condition() const noexcept { return condition_; }
+    [[nodiscard]] const BlockStmt::Ptr &thenBranch() const noexcept { return thenBranch_; }
+    [[nodiscard]] const Statement::Ptr &elseBranch() const noexcept { return elseBranch_; }
+
+private:
+    Expression::Ptr condition_;
+    BlockStmt::Ptr thenBranch_;
+    Statement::Ptr elseBranch_;
+};
+
+class WhileStmt : public Statement {
+public:
+    using Ptr = std::shared_ptr<WhileStmt>;
+
+    WhileStmt(Expression::Ptr condition, BlockStmt::Ptr body, SourceLocation location)
+        : Statement(StatementKind::While, location), condition_(std::move(condition)), body_(std::move(body)) {}
+
+    [[nodiscard]] const Expression::Ptr &condition() const noexcept { return condition_; }
+    [[nodiscard]] const BlockStmt::Ptr &body() const noexcept { return body_; }
+
+private:
+    Expression::Ptr condition_;
+    BlockStmt::Ptr body_;
 };
 
 }  // namespace pylite::ast
