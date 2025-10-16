@@ -25,6 +25,7 @@ add_library(pylite_core
     src/lexer.cpp
     src/parser.cpp
     src/interpreter.cpp
+    src/runtime.cpp
 )
 
 target_include_directories(pylite_core

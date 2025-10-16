@@ -50,13 +50,15 @@ private:
 
 class LiteralExpr : public Expression {
 public:
-    LiteralExpr(TokenLiteral value, SourceLocation location)
-        : Expression(ExpressionKind::Literal, location), value_(std::move(value)) {}
+    LiteralExpr(TokenLiteral value, TokenType tokenType, SourceLocation location)
+        : Expression(ExpressionKind::Literal, location), value_(std::move(value)), tokenType_(tokenType) {}
 
     [[nodiscard]] const TokenLiteral &value() const noexcept { return value_; }
+    [[nodiscard]] TokenType tokenType() const noexcept { return tokenType_; }
 
 private:
     TokenLiteral value_;
+    TokenType tokenType_;
 };
 
 class VariableExpr : public Expression {
