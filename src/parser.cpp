@@ -15,11 +15,13 @@ using ast::BlockStmt;
 using ast::CallExpr;
 using ast::Expression;
 using ast::ExpressionStmt;
+using ast::IfStmt;
 using ast::LiteralExpr;
 using ast::SourceLocation;
 using ast::Statement;
 using ast::UnaryExpr;
 using ast::VariableExpr;
+using ast::WhileStmt;
 
 class ParserImpl {
 public:
@@ -110,6 +112,21 @@ private:
     }
 
     Statement::Ptr parseStatement() {
+        if (check(TokenType::Keyword)) {
+            const Token &keyword = peek();
+            if (keyword.lexeme == "if") {
+                advance();
+                return parseIfStatement(toLocation(keyword));
+            }
+            if (keyword.lexeme == "while") {
+                advance();
+                return parseWhileStatement(toLocation(keyword));
+            }
+            if (keyword.lexeme == "elif" || keyword.lexeme == "else") {
+                throw makeError(keyword, "Unexpected '" + keyword.lexeme + "' without preceding 'if'");
+            }
+        }
+
         if (check(TokenType::Identifier) && check(TokenType::Operator, "=", 1)) {
             const Token &identifier = advance();
             SourceLocation location = toLocation(identifier);
@@ -121,6 +138,38 @@ private:
         auto expression = parseExpression();
         SourceLocation location = expression->location();
         return std::make_shared<ExpressionStmt>(std::move(expression), location);
+    }
+
+    Statement::Ptr parseIfStatement(SourceLocation location) {
+        auto condition = parseExpression();
+        consume(TokenType::Punctuation, ":", "Expected ':' after condition");
+        consume(TokenType::Newline, "Expected newline after ':' in if statement");
+        auto thenBranch = parseBlock(true);
+        skipNewlines();
+
+        Statement::Ptr elseBranch;
+
+        if (matchKeyword("elif")) {
+            SourceLocation elifLocation = toLocation(previous());
+            elseBranch = parseIfStatement(elifLocation);
+        } else if (matchKeyword("else")) {
+            consume(TokenType::Punctuation, ":", "Expected ':' after else");
+            consume(TokenType::Newline, "Expected newline after ':' in else clause");
+            auto elseBlock = parseBlock(true);
+            elseBranch = elseBlock;
+            skipNewlines();
+        }
+
+        return std::make_shared<IfStmt>(std::move(condition), std::move(thenBranch), std::move(elseBranch), location);
+    }
+
+    Statement::Ptr parseWhileStatement(SourceLocation location) {
+        auto condition = parseExpression();
+        consume(TokenType::Punctuation, ":", "Expected ':' after while condition");
+        consume(TokenType::Newline, "Expected newline after ':' in while statement");
+        auto body = parseBlock(true);
+        skipNewlines();
+        return std::make_shared<WhileStmt>(std::move(condition), std::move(body), location);
     }
 
     Expression::Ptr parseExpression(int minPrecedence = 0) {

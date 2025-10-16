@@ -118,6 +118,43 @@ void Interpreter::executeStatement(const ast::Statement::Ptr &statement, Environ
             environment.assign(assign->target(), value);
             break;
         }
+        case ast::StatementKind::If: {
+            auto ifStmt = std::dynamic_pointer_cast<ast::IfStmt>(statement);
+            if (!ifStmt) {
+                throw RuntimeError("Invalid if statement", statement->location());
+            }
+            if (!ifStmt->thenBranch()) {
+                throw RuntimeError("Missing body in if statement", statement->location());
+            }
+            Value condition = evaluateExpression(ifStmt->condition(), environment);
+            if (condition.truthy()) {
+                executeBlock(*ifStmt->thenBranch(), environment);
+            } else if (ifStmt->elseBranch()) {
+                if (ifStmt->elseBranch()->kind() == ast::StatementKind::Block) {
+                    auto elseBlock = std::dynamic_pointer_cast<ast::BlockStmt>(ifStmt->elseBranch());
+                    if (!elseBlock) {
+                        throw RuntimeError("Invalid else block", ifStmt->elseBranch()->location());
+                    }
+                    executeBlock(*elseBlock, environment);
+                } else {
+                    executeStatement(ifStmt->elseBranch(), environment);
+                }
+            }
+            break;
+        }
+        case ast::StatementKind::While: {
+            auto whileStmt = std::dynamic_pointer_cast<ast::WhileStmt>(statement);
+            if (!whileStmt) {
+                throw RuntimeError("Invalid while statement", statement->location());
+            }
+            if (!whileStmt->body()) {
+                throw RuntimeError("Missing body in while statement", statement->location());
+            }
+            while (evaluateExpression(whileStmt->condition(), environment).truthy()) {
+                executeBlock(*whileStmt->body(), environment);
+            }
+            break;
+        }
         case ast::StatementKind::Block: {
             auto block = std::dynamic_pointer_cast<ast::BlockStmt>(statement);
             if (!block) {

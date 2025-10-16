@@ -376,3 +376,98 @@ TEST_CASE("Interpreter raises runtime error on type mismatches") {
     pylite::Interpreter interpreter;
     REQUIRE_THROWS_AS(interpreter.runSource("1 + \"two\"\n"), pylite::RuntimeError);
 }
+
+TEST_CASE("Parser builds if/elif/else statements with nested bodies") {
+    const std::string source =
+        "if flag:\n"
+        "    value = 1\n"
+        "elif other:\n"
+        "    value = 2\n"
+        "else:\n"
+        "    value = 3\n";
+
+    pylite::Lexer lexer;
+    auto tokens = lexer.tokenize(source);
+
+    pylite::Parser parser;
+    auto program = parser.parse(tokens);
+
+    REQUIRE(program);
+    REQUIRE(program->statements().size() == 1);
+
+    auto ifStmt = std::dynamic_pointer_cast<pylite::ast::IfStmt>(program->statements()[0]);
+    REQUIRE(ifStmt);
+    REQUIRE(ifStmt->thenBranch());
+    REQUIRE(ifStmt->thenBranch()->statements().size() == 1);
+    auto thenAssign = std::dynamic_pointer_cast<pylite::ast::AssignmentStmt>(ifStmt->thenBranch()->statements()[0]);
+    REQUIRE(thenAssign);
+    REQUIRE(thenAssign->target() == "value");
+
+    auto elifStmt = std::dynamic_pointer_cast<pylite::ast::IfStmt>(ifStmt->elseBranch());
+    REQUIRE(elifStmt);
+    REQUIRE(elifStmt->thenBranch());
+    REQUIRE(elifStmt->thenBranch()->statements().size() == 1);
+    auto elifAssign = std::dynamic_pointer_cast<pylite::ast::AssignmentStmt>(elifStmt->thenBranch()->statements()[0]);
+    REQUIRE(elifAssign);
+    REQUIRE(elifAssign->target() == "value");
+
+    auto elseNode = elifStmt->elseBranch();
+    REQUIRE(elseNode);
+    auto elseBlock = std::dynamic_pointer_cast<pylite::ast::BlockStmt>(elseNode);
+    REQUIRE(elseBlock);
+    REQUIRE(elseBlock->statements().size() == 1);
+    auto elseAssign = std::dynamic_pointer_cast<pylite::ast::AssignmentStmt>(elseBlock->statements()[0]);
+    REQUIRE(elseAssign);
+    REQUIRE(elseAssign->target() == "value");
+}
+
+TEST_CASE("Interpreter executes nested control flow with elif and else branches") {
+    pylite::Interpreter interpreter;
+    interpreter.runSource("flag = 2\n"
+                          "value = 0\n"
+                          "if flag == 1:\n"
+                          "    value = 100\n"
+                          "elif flag == 2:\n"
+                          "    value = value + 1\n"
+                          "    if False:\n"
+                          "        value = 999\n"
+                          "    else:\n"
+                          "        value = value + 9\n"
+                          "else:\n"
+                          "    value = -1\n"
+                          "value\n"
+                          "flag = 3\n"
+                          "other = 0\n"
+                          "if flag == 1:\n"
+                          "    other = 1\n"
+                          "elif flag == 2:\n"
+                          "    other = 2\n"
+                          "else:\n"
+                          "    other = 3\n"
+                          "other\n");
+
+    const auto &results = interpreter.results();
+    REQUIRE(results.size() == 2);
+    REQUIRE(std::holds_alternative<std::int64_t>(results[0].data()));
+    REQUIRE(std::get<std::int64_t>(results[0].data()) == 10);
+    REQUIRE(std::holds_alternative<std::int64_t>(results[1].data()));
+    REQUIRE(std::get<std::int64_t>(results[1].data()) == 3);
+}
+
+TEST_CASE("Interpreter executes while loops until condition is false") {
+    pylite::Interpreter interpreter;
+    interpreter.runSource("i = 0\n"
+                          "accum = 0\n"
+                          "while i < 4:\n"
+                          "    accum = accum + i\n"
+                          "    i = i + 1\n"
+                          "accum\n"
+                          "i\n");
+
+    const auto &results = interpreter.results();
+    REQUIRE(results.size() == 2);
+    REQUIRE(std::holds_alternative<std::int64_t>(results[0].data()));
+    REQUIRE(std::get<std::int64_t>(results[0].data()) == 6);
+    REQUIRE(std::holds_alternative<std::int64_t>(results[1].data()));
+    REQUIRE(std::get<std::int64_t>(results[1].data()) == 4);
+}
