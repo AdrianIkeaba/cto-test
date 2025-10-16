@@ -15,7 +15,7 @@ public:
     void runReplLine(const std::string &line);
 
 private:
-    void execute(const std::string &astRepresentation);
+    void execute(const ast::BlockStmt::Ptr &program);
 
     Lexer lexer_;
     Parser parser_;
