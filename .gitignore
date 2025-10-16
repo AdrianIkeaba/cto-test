@@ -1,0 +1,20 @@
+# Build artifacts
+/build/
+/cmake-build-debug/
+/cmake-build-release/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+*.cmake
+Makefile
+cmake_install.cmake
+compile_commands.json
+
+# IDE files
+*.user
+*.user.*
+*.swp
+*.swo
+*.idea/
+.vscode/
