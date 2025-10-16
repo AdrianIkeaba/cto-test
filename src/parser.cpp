@@ -190,7 +190,7 @@ private:
             case TokenType::Float:
             case TokenType::String: {
                 advance();
-                return std::make_shared<LiteralExpr>(token.literal, toLocation(token));
+                return std::make_shared<LiteralExpr>(token.literal, token.type, toLocation(token));
             }
             case TokenType::Identifier: {
                 advance();
@@ -199,7 +199,7 @@ private:
             case TokenType::Keyword: {
                 if (token.lexeme == "True" || token.lexeme == "False" || token.lexeme == "None") {
                     advance();
-                    return std::make_shared<LiteralExpr>(token.literal, toLocation(token));
+                    return std::make_shared<LiteralExpr>(token.literal, token.type, toLocation(token));
                 }
                 advance();
                 return std::make_shared<VariableExpr>(token.lexeme, toLocation(token));

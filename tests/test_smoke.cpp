@@ -314,3 +314,65 @@ TEST_CASE("Parser groups indented statements into block nodes") {
     REQUIRE(nestedValue);
     REQUIRE(nestedValue->name() == "x");
 }
+
+TEST_CASE("Interpreter evaluates arithmetic expressions") {
+    pylite::Interpreter interpreter;
+    interpreter.runSource("1 + 2 * 3\n");
+
+    const auto &results = interpreter.results();
+    REQUIRE(results.size() == 1);
+    REQUIRE(std::holds_alternative<std::int64_t>(results[0].data()));
+    REQUIRE(std::get<std::int64_t>(results[0].data()) == 7);
+}
+
+TEST_CASE("Interpreter updates variables across statements") {
+    pylite::Interpreter interpreter;
+    interpreter.runSource("a = 10\n"
+                          "b = a + 5\n"
+                          "a\n"
+                          "b\n");
+
+    const auto &results = interpreter.results();
+    REQUIRE(results.size() == 2);
+    REQUIRE(std::holds_alternative<std::int64_t>(results[0].data()));
+    REQUIRE(std::get<std::int64_t>(results[0].data()) == 10);
+    REQUIRE(std::holds_alternative<std::int64_t>(results[1].data()));
+    REQUIRE(std::get<std::int64_t>(results[1].data()) == 15);
+}
+
+TEST_CASE("Interpreter evaluates boolean logic and comparisons") {
+    pylite::Interpreter interpreter;
+    interpreter.runSource("True and False\n"
+                          "True or False\n"
+                          "not False\n"
+                          "1 < 2\n"
+                          "\"a\" < \"b\"\n");
+
+    const auto &results = interpreter.results();
+    REQUIRE(results.size() == 5);
+
+    REQUIRE(std::holds_alternative<bool>(results[0].data()));
+    REQUIRE_FALSE(std::get<bool>(results[0].data()));
+
+    REQUIRE(std::holds_alternative<bool>(results[1].data()));
+    REQUIRE(std::get<bool>(results[1].data()));
+
+    REQUIRE(std::holds_alternative<bool>(results[2].data()));
+    REQUIRE(std::get<bool>(results[2].data()));
+
+    REQUIRE(std::holds_alternative<bool>(results[3].data()));
+    REQUIRE(std::get<bool>(results[3].data()));
+
+    REQUIRE(std::holds_alternative<bool>(results[4].data()));
+    REQUIRE(std::get<bool>(results[4].data()));
+}
+
+TEST_CASE("Interpreter raises runtime error for undefined variables") {
+    pylite::Interpreter interpreter;
+    REQUIRE_THROWS_AS(interpreter.runSource("missing\n"), pylite::RuntimeError);
+}
+
+TEST_CASE("Interpreter raises runtime error on type mismatches") {
+    pylite::Interpreter interpreter;
+    REQUIRE_THROWS_AS(interpreter.runSource("1 + \"two\"\n"), pylite::RuntimeError);
+}
