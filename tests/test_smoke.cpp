@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
+#include "pylite/ast.hpp"
 #include "pylite/interpreter.hpp"
 #include "pylite/lexer.hpp"
 #include "pylite/parser.hpp"
@@ -179,10 +182,135 @@ TEST_CASE("Parser and interpreter integrate with lexer tokens") {
     auto tokens = lexer.tokenize(source);
 
     pylite::Parser parser;
-    auto ast = parser.parse(tokens);
+    auto program = parser.parse(tokens);
 
-    REQUIRE(ast == "AST(tokens=" + std::to_string(tokens.size()) + ")");
+    REQUIRE(program);
+    REQUIRE(program->statements().size() == 1);
+    REQUIRE(program->statements()[0]->kind() == pylite::ast::StatementKind::Expression);
+
+    auto exprStmt = std::dynamic_pointer_cast<pylite::ast::ExpressionStmt>(program->statements()[0]);
+    REQUIRE(exprStmt);
+    auto call = std::dynamic_pointer_cast<pylite::ast::CallExpr>(exprStmt->expression());
+    REQUIRE(call);
+    REQUIRE(call->arguments().size() == 1);
 
     pylite::Interpreter interpreter;
     REQUIRE_NOTHROW(interpreter.runSource(source));
+}
+
+TEST_CASE("Parser respects operator precedence when building expressions") {
+    const std::string source = "1 + 2 * 3\n";
+    pylite::Lexer lexer;
+    auto tokens = lexer.tokenize(source);
+
+    pylite::Parser parser;
+    auto program = parser.parse(tokens);
+
+    REQUIRE(program);
+    REQUIRE(program->statements().size() == 1);
+
+    auto expressionStmt = std::dynamic_pointer_cast<pylite::ast::ExpressionStmt>(program->statements()[0]);
+    REQUIRE(expressionStmt);
+
+    auto sum = std::dynamic_pointer_cast<pylite::ast::BinaryExpr>(expressionStmt->expression());
+    REQUIRE(sum);
+    REQUIRE(sum->op() == "+");
+
+    auto leftLiteral = std::dynamic_pointer_cast<pylite::ast::LiteralExpr>(sum->left());
+    REQUIRE(leftLiteral);
+    REQUIRE(std::get<std::int64_t>(leftLiteral->value()) == 1);
+
+    auto product = std::dynamic_pointer_cast<pylite::ast::BinaryExpr>(sum->right());
+    REQUIRE(product);
+    REQUIRE(product->op() == "*");
+
+    auto productLeft = std::dynamic_pointer_cast<pylite::ast::LiteralExpr>(product->left());
+    REQUIRE(productLeft);
+    REQUIRE(std::get<std::int64_t>(productLeft->value()) == 2);
+
+    auto productRight = std::dynamic_pointer_cast<pylite::ast::LiteralExpr>(product->right());
+    REQUIRE(productRight);
+    REQUIRE(std::get<std::int64_t>(productRight->value()) == 3);
+}
+
+TEST_CASE("Parser creates assignment statements for simple bindings") {
+    const std::string source = "answer = 42\n";
+    pylite::Lexer lexer;
+    auto tokens = lexer.tokenize(source);
+
+    pylite::Parser parser;
+    auto program = parser.parse(tokens);
+
+    REQUIRE(program);
+    REQUIRE(program->statements().size() == 1);
+
+    auto assignment = std::dynamic_pointer_cast<pylite::ast::AssignmentStmt>(program->statements()[0]);
+    REQUIRE(assignment);
+    REQUIRE(assignment->target() == "answer");
+
+    auto value = std::dynamic_pointer_cast<pylite::ast::LiteralExpr>(assignment->value());
+    REQUIRE(value);
+    REQUIRE(std::get<std::int64_t>(value->value()) == 42);
+}
+
+TEST_CASE("Parser builds call expressions with positional arguments") {
+    const std::string source = "print(1, x)\n";
+    pylite::Lexer lexer;
+    auto tokens = lexer.tokenize(source);
+
+    pylite::Parser parser;
+    auto program = parser.parse(tokens);
+
+    REQUIRE(program);
+    REQUIRE(program->statements().size() == 1);
+
+    auto expressionStmt = std::dynamic_pointer_cast<pylite::ast::ExpressionStmt>(program->statements()[0]);
+    REQUIRE(expressionStmt);
+
+    auto call = std::dynamic_pointer_cast<pylite::ast::CallExpr>(expressionStmt->expression());
+    REQUIRE(call);
+
+    auto callee = std::dynamic_pointer_cast<pylite::ast::VariableExpr>(call->callee());
+    REQUIRE(callee);
+    REQUIRE(callee->name() == "print");
+
+    REQUIRE(call->arguments().size() == 2);
+
+    auto firstArg = std::dynamic_pointer_cast<pylite::ast::LiteralExpr>(call->arguments()[0]);
+    REQUIRE(firstArg);
+    REQUIRE(std::get<std::int64_t>(firstArg->value()) == 1);
+
+    auto secondArg = std::dynamic_pointer_cast<pylite::ast::VariableExpr>(call->arguments()[1]);
+    REQUIRE(secondArg);
+    REQUIRE(secondArg->name() == "x");
+}
+
+TEST_CASE("Parser groups indented statements into block nodes") {
+    const std::string source =
+        "x = 1\n"
+        "    y = x\n";
+    pylite::Lexer lexer;
+    auto tokens = lexer.tokenize(source);
+
+    pylite::Parser parser;
+    auto program = parser.parse(tokens);
+
+    REQUIRE(program);
+    REQUIRE(program->statements().size() == 2);
+
+    auto rootAssignment = std::dynamic_pointer_cast<pylite::ast::AssignmentStmt>(program->statements()[0]);
+    REQUIRE(rootAssignment);
+    REQUIRE(rootAssignment->target() == "x");
+
+    auto block = std::dynamic_pointer_cast<pylite::ast::BlockStmt>(program->statements()[1]);
+    REQUIRE(block);
+    REQUIRE(block->statements().size() == 1);
+
+    auto nestedAssignment = std::dynamic_pointer_cast<pylite::ast::AssignmentStmt>(block->statements()[0]);
+    REQUIRE(nestedAssignment);
+    REQUIRE(nestedAssignment->target() == "y");
+
+    auto nestedValue = std::dynamic_pointer_cast<pylite::ast::VariableExpr>(nestedAssignment->value());
+    REQUIRE(nestedValue);
+    REQUIRE(nestedValue->name() == "x");
 }
