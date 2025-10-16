@@ -471,3 +471,72 @@ TEST_CASE("Interpreter executes while loops until condition is false") {
     REQUIRE(std::holds_alternative<std::int64_t>(results[1].data()));
     REQUIRE(std::get<std::int64_t>(results[1].data()) == 4);
 }
+
+TEST_CASE("Parser builds function definitions with parameters and return statements") {
+    const std::string source =
+        "def add(a, b):\n"
+        "    return a + b\n";
+
+    pylite::Lexer lexer;
+    auto tokens = lexer.tokenize(source);
+
+    pylite::Parser parser;
+    auto program = parser.parse(tokens);
+
+    REQUIRE(program);
+    REQUIRE(program->statements().size() == 1);
+
+    auto functionStmt = std::dynamic_pointer_cast<pylite::ast::FunctionStmt>(program->statements()[0]);
+    REQUIRE(functionStmt);
+    REQUIRE(functionStmt->name() == "add");
+    REQUIRE(functionStmt->parameters().size() == 2);
+    REQUIRE(functionStmt->parameters()[0]->name() == "a");
+    REQUIRE(functionStmt->parameters()[1]->name() == "b");
+    REQUIRE(functionStmt->body());
+    REQUIRE(functionStmt->body()->statements().size() == 1);
+
+    auto returnStmt = std::dynamic_pointer_cast<pylite::ast::ReturnStmt>(functionStmt->body()->statements()[0]);
+    REQUIRE(returnStmt);
+    REQUIRE(returnStmt->hasValue());
+}
+
+TEST_CASE("Interpreter supports functions with parameters and return values") {
+    pylite::Interpreter interpreter;
+    interpreter.runSource("def add(a, b):\n"
+                          "    return a + b\n"
+                          "add(2, 3)\n");
+
+    const auto &results = interpreter.results();
+    REQUIRE(results.size() == 1);
+    REQUIRE(std::holds_alternative<std::int64_t>(results[0].data()));
+    REQUIRE(std::get<std::int64_t>(results[0].data()) == 5);
+}
+
+TEST_CASE("Interpreter supports recursive functions") {
+    pylite::Interpreter interpreter;
+    interpreter.runSource("def fact(n):\n"
+                          "    if n == 0:\n"
+                          "        return 1\n"
+                          "    return n * fact(n - 1)\n"
+                          "fact(5)\n");
+
+    const auto &results = interpreter.results();
+    REQUIRE(results.size() == 1);
+    REQUIRE(std::holds_alternative<std::int64_t>(results[0].data()));
+    REQUIRE(std::get<std::int64_t>(results[0].data()) == 120);
+}
+
+TEST_CASE("Interpreter supports closures capturing outer variables") {
+    pylite::Interpreter interpreter;
+    interpreter.runSource("def make_adder(x):\n"
+                          "    def inner(y):\n"
+                          "        return x + y\n"
+                          "    return inner\n"
+                          "fn = make_adder(10)\n"
+                          "fn(5)\n");
+
+    const auto &results = interpreter.results();
+    REQUIRE(results.size() == 1);
+    REQUIRE(std::holds_alternative<std::int64_t>(results.back().data()));
+    REQUIRE(std::get<std::int64_t>(results.back().data()) == 15);
+}

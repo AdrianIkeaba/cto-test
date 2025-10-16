@@ -15,8 +15,11 @@ using ast::BlockStmt;
 using ast::CallExpr;
 using ast::Expression;
 using ast::ExpressionStmt;
+using ast::FunctionStmt;
 using ast::IfStmt;
 using ast::LiteralExpr;
+using ast::Parameter;
+using ast::ReturnStmt;
 using ast::SourceLocation;
 using ast::Statement;
 using ast::UnaryExpr;
@@ -122,6 +125,14 @@ private:
                 advance();
                 return parseWhileStatement(toLocation(keyword));
             }
+            if (keyword.lexeme == "def") {
+                advance();
+                return parseFunctionStatement(toLocation(keyword));
+            }
+            if (keyword.lexeme == "return") {
+                advance();
+                return parseReturnStatement(toLocation(keyword));
+            }
             if (keyword.lexeme == "elif" || keyword.lexeme == "else") {
                 throw makeError(keyword, "Unexpected '" + keyword.lexeme + "' without preceding 'if'");
             }
@@ -138,6 +149,38 @@ private:
         auto expression = parseExpression();
         SourceLocation location = expression->location();
         return std::make_shared<ExpressionStmt>(std::move(expression), location);
+    }
+
+    Statement::Ptr parseFunctionStatement(SourceLocation location) {
+        const Token &nameToken = consume(TokenType::Identifier, "Expected function name after 'def'");
+        consume(TokenType::Punctuation, "(", "Expected '(' after function name");
+        auto parameters = parseParameterList();
+        consume(TokenType::Punctuation, ")", "Expected ')' after parameter list");
+        consume(TokenType::Punctuation, ":", "Expected ':' after function signature");
+        consume(TokenType::Newline, "Expected newline after ':' in function definition");
+        auto body = parseBlock(true);
+        skipNewlines();
+        return std::make_shared<FunctionStmt>(nameToken.lexeme, std::move(parameters), std::move(body), location);
+    }
+
+    std::vector<Parameter::Ptr> parseParameterList() {
+        std::vector<Parameter::Ptr> parameters;
+        if (check(TokenType::Punctuation, ")")) {
+            return parameters;
+        }
+        do {
+            const Token &paramToken = consume(TokenType::Identifier, "Expected parameter name");
+            parameters.push_back(std::make_shared<Parameter>(paramToken.lexeme, toLocation(paramToken)));
+        } while (match(TokenType::Punctuation, ","));
+        return parameters;
+    }
+
+    Statement::Ptr parseReturnStatement(SourceLocation location) {
+        if (check(TokenType::Newline) || check(TokenType::Dedent) || check(TokenType::EndOfFile)) {
+            return std::make_shared<ReturnStmt>(nullptr, location);
+        }
+        auto value = parseExpression();
+        return std::make_shared<ReturnStmt>(std::move(value), location);
     }
 
     Statement::Ptr parseIfStatement(SourceLocation location) {

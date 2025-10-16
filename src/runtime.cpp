@@ -19,6 +19,17 @@ std::string RuntimeError::formatMessage(const std::string &message, ast::SourceL
     return oss.str();
 }
 
+FunctionValue::FunctionValue(std::string name,
+                             std::vector<std::string> parameters,
+                             ast::BlockStmt::Ptr body,
+                             std::shared_ptr<Environment> closure,
+                             ast::SourceLocation location)
+    : name_(std::move(name)),
+      parameters_(std::move(parameters)),
+      body_(std::move(body)),
+      closure_(std::move(closure)),
+      location_(location) {}
+
 Value::Value() : value_(std::monostate{}) {}
 
 Value::Value(Variant value) : value_(std::move(value)) {}
@@ -34,6 +45,8 @@ Value Value::floating(double value) { return Value(value); }
 Value Value::string(std::string value) { return Value(std::move(value)); }
 
 Value Value::function(FunctionPlaceholder placeholder) { return Value(std::move(placeholder)); }
+
+Value Value::function(FunctionValue::Ptr function) { return Value(std::move(function)); }
 
 Value Value::object(ObjectPlaceholder placeholder) { return Value(std::move(placeholder)); }
 
@@ -65,6 +78,10 @@ bool Value::truthy() const {
     return true;
 }
 
+bool Value::isFunction() const noexcept {
+    return std::holds_alternative<FunctionValue::Ptr>(value_) || std::holds_alternative<FunctionPlaceholder>(value_);
+}
+
 std::string Value::typeName() const {
     if (std::holds_alternative<std::monostate>(value_)) {
         return "None";
@@ -81,7 +98,7 @@ std::string Value::typeName() const {
     if (std::holds_alternative<std::string>(value_)) {
         return "str";
     }
-    if (std::holds_alternative<FunctionPlaceholder>(value_)) {
+    if (isFunction()) {
         return "function";
     }
     return "object";
@@ -107,8 +124,14 @@ std::string Value::toRepr() const {
         oss << '"' << *stringValue << '"';
         return oss.str();
     }
-    if (const auto *functionValue = std::get_if<FunctionPlaceholder>(&value_)) {
-        return "<function " + functionValue->name + ">";
+    if (const auto *functionPtr = std::get_if<FunctionValue::Ptr>(&value_)) {
+        if (*functionPtr && !(*functionPtr)->name().empty()) {
+            return "<function " + (*functionPtr)->name() + ">";
+        }
+        return "<function>";
+    }
+    if (const auto *functionPlaceholder = std::get_if<FunctionPlaceholder>(&value_)) {
+        return "<function " + functionPlaceholder->name + ">";
     }
     const auto &objectValue = std::get<ObjectPlaceholder>(value_);
     return "<object " + objectValue.description + ">";
@@ -140,6 +163,13 @@ std::int64_t Value::asInteger(const ast::SourceLocation &location) const {
     throw RuntimeError("Expected an integer value, got '" + typeName() + "'", location);
 }
 
+FunctionValue::Ptr Value::asFunction(const ast::SourceLocation &location) const {
+    if (const auto *functionPtr = std::get_if<FunctionValue::Ptr>(&value_)) {
+        return *functionPtr;
+    }
+    throw RuntimeError("Expected a function value, got '" + typeName() + "'", location);
+}
+
 bool Value::equals(const Value &other) const {
     if (isNumeric() && other.isNumeric()) {
         return asNumber(ast::SourceLocation{}) == other.asNumber(ast::SourceLocation{});
@@ -154,6 +184,10 @@ bool Value::equals(const Value &other) const {
         std::holds_alternative<FunctionPlaceholder>(other.value_)) {
         return std::get<FunctionPlaceholder>(value_).name == std::get<FunctionPlaceholder>(other.value_).name;
     }
+    if (std::holds_alternative<FunctionValue::Ptr>(value_) &&
+        std::holds_alternative<FunctionValue::Ptr>(other.value_)) {
+        return std::get<FunctionValue::Ptr>(value_) == std::get<FunctionValue::Ptr>(other.value_);
+    }
     if (std::holds_alternative<ObjectPlaceholder>(value_) &&
         std::holds_alternative<ObjectPlaceholder>(other.value_)) {
         return std::get<ObjectPlaceholder>(value_).description ==
@@ -162,7 +196,7 @@ bool Value::equals(const Value &other) const {
     return false;
 }
 
-Environment::Environment(Environment *parent) : parent_(parent) {}
+Environment::Environment(Ptr parent) : parent_(std::move(parent)) {}
 
 void Environment::define(std::string name, Value value) {
     values_.insert_or_assign(std::move(name), std::move(value));

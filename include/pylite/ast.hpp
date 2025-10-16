@@ -113,12 +113,26 @@ private:
     std::vector<Expression::Ptr> arguments_;
 };
 
+class Parameter : public Node {
+public:
+    using Ptr = std::shared_ptr<Parameter>;
+
+    Parameter(std::string name, SourceLocation location) : Node(location), name_(std::move(name)) {}
+
+    [[nodiscard]] const std::string &name() const noexcept { return name_; }
+
+private:
+    std::string name_;
+};
+
 enum class StatementKind {
     Expression,
     Assignment,
     Block,
     If,
     While,
+    Function,
+    Return,
 };
 
 class Statement : public Node {
@@ -205,6 +219,40 @@ public:
 private:
     Expression::Ptr condition_;
     BlockStmt::Ptr body_;
+};
+
+class FunctionStmt : public Statement {
+public:
+    using Ptr = std::shared_ptr<FunctionStmt>;
+
+    FunctionStmt(std::string name, std::vector<Parameter::Ptr> parameters, BlockStmt::Ptr body, SourceLocation location)
+        : Statement(StatementKind::Function, location),
+          name_(std::move(name)),
+          parameters_(std::move(parameters)),
+          body_(std::move(body)) {}
+
+    [[nodiscard]] const std::string &name() const noexcept { return name_; }
+    [[nodiscard]] const std::vector<Parameter::Ptr> &parameters() const noexcept { return parameters_; }
+    [[nodiscard]] const BlockStmt::Ptr &body() const noexcept { return body_; }
+
+private:
+    std::string name_;
+    std::vector<Parameter::Ptr> parameters_;
+    BlockStmt::Ptr body_;
+};
+
+class ReturnStmt : public Statement {
+public:
+    using Ptr = std::shared_ptr<ReturnStmt>;
+
+    ReturnStmt(Expression::Ptr value, SourceLocation location)
+        : Statement(StatementKind::Return, location), value_(std::move(value)) {}
+
+    [[nodiscard]] const Expression::Ptr &value() const noexcept { return value_; }
+    [[nodiscard]] bool hasValue() const noexcept { return static_cast<bool>(value_); }
+
+private:
+    Expression::Ptr value_;
 };
 
 }  // namespace pylite::ast
