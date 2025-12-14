@@ -1,7 +1,7 @@
 package com.gym.backend.exception;
 
 /**
- * Custom exception for resource not found errors
+ * Exception thrown when a requested resource is not found
  */
 public class ResourceNotFoundException extends RuntimeException {
     
