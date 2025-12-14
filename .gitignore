@@ -1,20 +1,29 @@
-# Build artifacts
-/build/
-/cmake-build-debug/
-/cmake-build-release/
-
-# CMake generated files
-CMakeCache.txt
-CMakeFiles/
-*.cmake
-Makefile
-cmake_install.cmake
-compile_commands.json
-
-# IDE files
-*.user
-*.user.*
+# OS junk
+.DS_Store
+Thumbs.db
 *.swp
-*.swo
-*.idea/
+
+# IDEs
+.idea/
 .vscode/
+*.iml
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Java / Spring Boot
+backend/target/
+backend/*.class
+backend/.mvn/wrapper/maven-wrapper.properties
+
+# Docker
+.env
