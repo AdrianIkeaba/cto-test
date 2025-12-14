@@ -21,7 +21,7 @@ public class PaymentGatewayService {
     /**
      * Process a payment through the gateway
      */
-    public PaymentGatewayResult processPayment(Double amount, String currency, PaymentMethod method, String clientTransactionId) {
+    public PaymentGatewayResult processPayment(java.math.BigDecimal amount, String currency, PaymentMethod method, String clientTransactionId) {
         log.info("Processing payment of {} {} via gateway", amount, currency);
 
         try {
@@ -51,7 +51,7 @@ public class PaymentGatewayService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("Payment processing interrupted", e);
-            
+
             PaymentGatewayResult result = new PaymentGatewayResult();
             result.setSuccess(false);
             result.setErrorMessage("Processing timeout");
@@ -63,7 +63,7 @@ public class PaymentGatewayService {
     /**
      * Refund a payment through the gateway
      */
-    public PaymentGatewayResult refundPayment(String transactionId, Double refundAmount, String reason) {
+    public PaymentGatewayResult refundPayment(String transactionId, java.math.BigDecimal refundAmount, String reason) {
         log.info("Processing refund of {} for transaction {}", refundAmount, transactionId);
 
         try {
@@ -92,7 +92,7 @@ public class PaymentGatewayService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("Refund processing interrupted", e);
-            
+
             PaymentGatewayResult result = new PaymentGatewayResult();
             result.setSuccess(false);
             result.setErrorMessage("Refund processing timeout");
@@ -112,7 +112,7 @@ public class PaymentGatewayService {
         private String errorMessage;
         private String errorCode;
         private LocalDateTime responseTime;
-        private Double amount;
+        private java.math.BigDecimal amount;
         private String currency;
 
         // Constructors
@@ -140,8 +140,11 @@ public class PaymentGatewayService {
         public LocalDateTime getResponseTime() { return responseTime; }
         public void setResponseTime(LocalDateTime responseTime) { this.responseTime = responseTime; }
 
-        public Double getAmount() { return amount; }
-        public void setAmount(Double amount) { this.amount = amount; }
+        public java.math.BigDecimal getAmount() {
+            return amount;
+        }
+
+        public void setAmount(java.math.BigDecimal amount) { this.amount = amount; }
 
         public String getCurrency() { return currency; }
         public void setCurrency(String currency) { this.currency = currency; }

@@ -80,8 +80,10 @@ class ApiClient {
   }
 
   private setTokens(token: string, refreshToken: string) {
+    console.log('Setting tokens in localStorage');
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    console.log('Tokens set successfully');
   }
 
   private clearAuth() {
@@ -123,8 +125,11 @@ class ApiClient {
 
   isAuthenticated(): boolean {
     const token = this.getToken();
+    console.log('Checking authentication - token exists:', !!token);
     if (!token) return false;
-    return !this.isTokenExpired(token);
+    const isExpired = this.isTokenExpired(token);
+    console.log('Checking authentication - token expired:', isExpired);
+    return !isExpired;
   }
 
   getStoredToken(): string | null {

@@ -36,9 +36,9 @@ public class PTSessionDto {
 
     private String clientFeedback;
 
-    private Double rating;
+    private java.math.BigDecimal rating;
 
-    private Double price;
+    private java.math.BigDecimal price;
 
     private String cancellationReason;
 

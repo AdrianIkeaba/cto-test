@@ -18,7 +18,7 @@ public class DtoMapper {
     // User mapping methods
     public UserDto mapToUserDto(User user) {
         if (user == null) return null;
-        
+
         UserDto dto = new UserDto();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
@@ -27,21 +27,21 @@ public class DtoMapper {
         dto.setPhoneNumber(user.getPhoneNumber());
         dto.setDateOfBirth(user.getDateOfBirth());
         dto.setActive(user.isActive());
-        dto.setIsEmailVerified(user.isEmailVerified());
+        dto.setEmailVerified(user.isEmailVerified());
         dto.setLastLoginAt(user.getLastLoginAt());
-        
+
         if (user.getRoles() != null) {
             dto.setRoles(user.getRoles().stream()
                 .map(this::mapToRoleDto)
                 .collect(Collectors.toSet()));
         }
-        
+
         return dto;
     }
 
     public User mapToUser(UserDto dto) {
         if (dto == null) return null;
-        
+
         User user = new User();
         user.setId(dto.getId());
         user.setEmail(dto.getEmail());
@@ -50,15 +50,15 @@ public class DtoMapper {
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setDateOfBirth(dto.getDateOfBirth());
         user.setActive(dto.isActive());
-        user.setIsEmailVerified(dto.isIsEmailVerified());
+        user.setEmailVerified(dto.isEmailVerified());
         user.setLastLoginAt(dto.getLastLoginAt());
-        
+
         return user;
     }
 
     public RoleDto mapToRoleDto(Role role) {
         if (role == null) return null;
-        
+
         RoleDto dto = new RoleDto();
         dto.setId(role.getId());
         dto.setName(role.getName());
@@ -69,7 +69,7 @@ public class DtoMapper {
     // Member Profile mapping methods
     public MemberProfileDto mapToMemberProfileDto(MemberProfile memberProfile) {
         if (memberProfile == null) return null;
-        
+
         MemberProfileDto dto = new MemberProfileDto();
         dto.setId(memberProfile.getId());
         dto.setUserId(memberProfile.getUser().getId());
@@ -88,7 +88,7 @@ public class DtoMapper {
 
     public MemberProfile mapToMemberProfile(MemberProfileDto dto) {
         if (dto == null) return null;
-        
+
         MemberProfile memberProfile = new MemberProfile();
         memberProfile.setId(dto.getId());
         memberProfile.setEmergencyContactName(dto.getEmergencyContactName());
@@ -107,7 +107,7 @@ public class DtoMapper {
     // Trainer Profile mapping methods
     public TrainerDto mapToTrainerDto(TrainerProfile trainerProfile) {
         if (trainerProfile == null) return null;
-        
+
         TrainerDto dto = new TrainerDto();
         dto.setId(trainerProfile.getId());
         dto.setUserId(trainerProfile.getUser().getId());
@@ -122,7 +122,7 @@ public class DtoMapper {
 
     public TrainerProfile mapToTrainerProfile(TrainerDto dto) {
         if (dto == null) return null;
-        
+
         TrainerProfile trainerProfile = new TrainerProfile();
         trainerProfile.setId(dto.getId());
         trainerProfile.setEmployeeId(dto.getEmployeeId());
@@ -137,7 +137,7 @@ public class DtoMapper {
     // Gym Class mapping methods
     public GymClassDto mapToGymClassDto(GymClass gymClass) {
         if (gymClass == null) return null;
-        
+
         GymClassDto dto = new GymClassDto();
         dto.setId(gymClass.getId());
         dto.setName(gymClass.getName());
@@ -148,18 +148,18 @@ public class DtoMapper {
         dto.setCategory(gymClass.getCategory());
         dto.setActive(gymClass.isActive());
         dto.setPrice(gymClass.getPrice());
-        
+
         if (gymClass.getTrainer() != null) {
             dto.setTrainerId(gymClass.getTrainer().getId());
             dto.setTrainer(mapToTrainerDto(gymClass.getTrainer()));
         }
-        
+
         return dto;
     }
 
     public GymClass mapToGymClass(GymClassDto dto) {
         if (dto == null) return null;
-        
+
         GymClass gymClass = new GymClass();
         gymClass.setId(dto.getId());
         gymClass.setName(dto.getName());
@@ -176,7 +176,7 @@ public class DtoMapper {
     // Class Schedule mapping methods
     public ClassScheduleDto mapToClassScheduleDto(ClassSchedule classSchedule) {
         if (classSchedule == null) return null;
-        
+
         ClassScheduleDto dto = new ClassScheduleDto();
         dto.setId(classSchedule.getId());
         dto.setStartTime(classSchedule.getStartTime());
@@ -188,18 +188,18 @@ public class DtoMapper {
         dto.setRecurrenceDayOfWeek(classSchedule.getRecurrenceDayOfWeek());
         dto.setRecurrenceEndDate(classSchedule.getRecurrenceEndDate());
         dto.setActive(classSchedule.isActive());
-        
+
         if (classSchedule.getGymClass() != null) {
             dto.setGymClassId(classSchedule.getGymClass().getId());
             dto.setGymClass(mapToGymClassDto(classSchedule.getGymClass()));
         }
-        
+
         return dto;
     }
 
     public ClassSchedule mapToClassSchedule(ClassScheduleDto dto) {
         if (dto == null) return null;
-        
+
         ClassSchedule classSchedule = new ClassSchedule();
         classSchedule.setId(dto.getId());
         classSchedule.setStartTime(dto.getStartTime());
@@ -217,7 +217,7 @@ public class DtoMapper {
     // Class Booking mapping methods
     public ClassBookingDto mapToClassBookingDto(ClassBooking classBooking) {
         if (classBooking == null) return null;
-        
+
         ClassBookingDto dto = new ClassBookingDto();
         dto.setId(classBooking.getId());
         dto.setBookingReference(classBooking.getBookingReference());
@@ -228,23 +228,23 @@ public class DtoMapper {
         dto.setAttended(classBooking.isAttended());
         dto.setAttendanceTime(classBooking.getAttendanceTime());
         dto.setAmountPaid(classBooking.getAmountPaid());
-        
+
         if (classBooking.getMember() != null) {
             dto.setMemberId(classBooking.getMember().getId());
-            dto.setMember(mapToMemberProfileDto(classBooking.getMember()));
+            dto.setMember(mapToMemberDto(classBooking.getMember()));
         }
-        
+
         if (classBooking.getClassSchedule() != null) {
             dto.setClassScheduleId(classBooking.getClassSchedule().getId());
             dto.setClassSchedule(mapToClassScheduleDto(classBooking.getClassSchedule()));
         }
-        
+
         return dto;
     }
 
     public ClassBooking mapToClassBooking(ClassBookingDto dto) {
         if (dto == null) return null;
-        
+
         ClassBooking classBooking = new ClassBooking();
         classBooking.setId(dto.getId());
         classBooking.setBookingReference(dto.getBookingReference());
@@ -261,7 +261,7 @@ public class DtoMapper {
     // Equipment mapping methods
     public EquipmentDto mapToEquipmentDto(Equipment equipment) {
         if (equipment == null) return null;
-        
+
         EquipmentDto dto = new EquipmentDto();
         dto.setId(equipment.getId());
         dto.setName(equipment.getName());
@@ -272,7 +272,7 @@ public class DtoMapper {
         dto.setModel(equipment.getModel());
         dto.setSerialNumber(equipment.getSerialNumber());
         dto.setPurchaseDate(equipment.getPurchaseDate());
-        dto.setPurchasePrice(equipment.getPurchasePrice() != null ? new BigDecimal(equipment.getPurchasePrice().toString()) : null);
+        dto.setPurchasePrice(equipment.getPurchasePrice());
         dto.setWarrantyExpiryDate(equipment.getWarrantyExpiryDate());
         dto.setMaintenanceDate(equipment.getMaintenanceDate());
         dto.setNextMaintenanceDate(equipment.getNextMaintenanceDate());
@@ -284,7 +284,7 @@ public class DtoMapper {
 
     public Equipment mapToEquipment(EquipmentDto dto) {
         if (dto == null) return null;
-        
+
         Equipment equipment = new Equipment();
         equipment.setId(dto.getId());
         equipment.setName(dto.getName());
@@ -295,7 +295,7 @@ public class DtoMapper {
         equipment.setModel(dto.getModel());
         equipment.setSerialNumber(dto.getSerialNumber());
         equipment.setPurchaseDate(dto.getPurchaseDate());
-        equipment.setPurchasePrice(dto.getPurchasePrice() != null ? dto.getPurchasePrice().doubleValue() : null);
+        equipment.setPurchasePrice(dto.getPurchasePrice());
         equipment.setWarrantyExpiryDate(dto.getWarrantyExpiryDate());
         equipment.setMaintenanceDate(dto.getMaintenanceDate());
         equipment.setNextMaintenanceDate(dto.getNextMaintenanceDate());
@@ -308,7 +308,7 @@ public class DtoMapper {
     // Membership Plan mapping methods
     public MembershipPlanDto mapToMembershipPlanDto(MembershipPlan membershipPlan) {
         if (membershipPlan == null) return null;
-        
+
         MembershipPlanDto dto = new MembershipPlanDto();
         dto.setId(membershipPlan.getId());
         dto.setName(membershipPlan.getName());
@@ -331,7 +331,7 @@ public class DtoMapper {
 
     public MembershipPlan mapToMembershipPlan(MembershipPlanDto dto) {
         if (dto == null) return null;
-        
+
         MembershipPlan membershipPlan = new MembershipPlan();
         membershipPlan.setId(dto.getId());
         membershipPlan.setName(dto.getName());
@@ -352,6 +352,169 @@ public class DtoMapper {
         return membershipPlan;
     }
 
-    // Continue with other mapping methods...
-    // Due to space constraints, I'll add the rest of the methods as needed
+    // Subscription mapping methods
+    public SubscriptionDto mapToSubscriptionDto(Subscription subscription) {
+        if (subscription == null) return null;
+
+        SubscriptionDto dto = new SubscriptionDto();
+        dto.setId(subscription.getId());
+        dto.setStartDate(subscription.getStartDate());
+        dto.setEndDate(subscription.getEndDate());
+        dto.setStatus(subscription.getStatus());
+        dto.setAutoRenewal(subscription.isAutoRenewal());
+        dto.setBillingDay(subscription.getBillingDay());
+        dto.setNextBillingDate(subscription.getNextBillingDate());
+        dto.setLastBillingDate(subscription.getLastBillingDate());
+        dto.setNotes(subscription.getNotes());
+        dto.setFreezeStartDate(subscription.getFreezeStartDate());
+        dto.setFreezeEndDate(subscription.getFreezeEndDate());
+
+        if (subscription.getMember() != null) {
+            dto.setMemberId(subscription.getMember().getId());
+        }
+
+        if (subscription.getMembershipPlan() != null) {
+            dto.setMembershipPlanId(subscription.getMembershipPlan().getId());
+            dto.setMembershipPlan(mapToMembershipPlanDto(subscription.getMembershipPlan()));
+        }
+
+        return dto;
+    }
+
+    // Payment mapping methods
+    public PaymentDto mapToPaymentDto(Payment payment) {
+        if (payment == null) return null;
+
+        PaymentDto dto = new PaymentDto();
+        dto.setId(payment.getId());
+        dto.setAmount(payment.getAmount());
+        dto.setCurrency(payment.getCurrency());
+        dto.setPaymentDate(payment.getPaymentDate());
+        dto.setPaymentMethod(payment.getPaymentMethod());
+        dto.setStatus(payment.getStatus());
+        dto.setDueDate(payment.getDueDate());
+        dto.setGatewayTransactionId(payment.getGatewayTransactionId());
+        dto.setGatewayResponse(payment.getGatewayResponse());
+        dto.setFailureReason(payment.getFailureReason());
+        dto.setReceiptNumber(payment.getReceiptNumber());
+        dto.setNotes(payment.getNotes());
+
+        if (payment.getMember() != null) {
+            dto.setMemberId(payment.getMember().getId());
+            dto.setMember(mapToMemberDto(payment.getMember()));
+        }
+
+        if (payment.getSubscription() != null) {
+            dto.setSubscriptionId(payment.getSubscription().getId());
+        }
+
+        if (payment.getInvoice() != null) {
+            dto.setInvoiceId(payment.getInvoice().getId());
+        }
+
+        return dto;
+    }
+
+    public Payment mapToPayment(PaymentDto dto) {
+        if (dto == null) return null;
+
+        Payment payment = new Payment();
+        payment.setId(dto.getId());
+        payment.setAmount(dto.getAmount());
+        payment.setCurrency(dto.getCurrency());
+        payment.setPaymentDate(dto.getPaymentDate());
+        payment.setPaymentMethod(dto.getPaymentMethod());
+        payment.setStatus(dto.getStatus());
+        payment.setDueDate(dto.getDueDate());
+        payment.setGatewayTransactionId(dto.getGatewayTransactionId());
+        payment.setGatewayResponse(dto.getGatewayResponse());
+        payment.setFailureReason(dto.getFailureReason());
+        payment.setReceiptNumber(dto.getReceiptNumber());
+        payment.setNotes(dto.getNotes());
+        return payment;
+    }
+
+    // PT Session mapping methods
+    public PTSessionDto mapToPTSessionDto(PTSession ptSession) {
+        if (ptSession == null) return null;
+
+        PTSessionDto dto = new PTSessionDto();
+        dto.setId(ptSession.getId());
+        dto.setSessionDate(ptSession.getSessionDate());
+        dto.setDurationMinutes(ptSession.getDurationMinutes());
+        dto.setStatus(ptSession.getStatus());
+        dto.setSessionType(ptSession.getSessionType());
+        dto.setGoals(ptSession.getGoals());
+        dto.setWorkoutNotes(ptSession.getWorkoutNotes());
+        dto.setClientFeedback(ptSession.getClientFeedback());
+        dto.setRating(ptSession.getRating());
+        dto.setPrice(ptSession.getPrice());
+        dto.setCancellationReason(ptSession.getCancellationReason());
+        dto.setCancellationTime(ptSession.getCancellationTime());
+        dto.setMakeupSession(ptSession.isMakeupSession());
+        dto.setRoomLocation(ptSession.getRoomLocation());
+
+        if (ptSession.getMember() != null) {
+            dto.setMemberId(ptSession.getMember().getId());
+            dto.setMember(mapToMemberDto(ptSession.getMember()));
+        }
+
+        if (ptSession.getTrainer() != null) {
+            dto.setTrainerId(ptSession.getTrainer().getId());
+            dto.setTrainer(mapToTrainerDto(ptSession.getTrainer()));
+        }
+
+        return dto;
+    }
+
+    // Attendance mapping methods
+    public AttendanceDto mapToAttendanceDto(Attendance attendance) {
+        if (attendance == null) return null;
+
+        AttendanceDto dto = new AttendanceDto();
+        dto.setId(attendance.getId());
+        dto.setCheckInTime(attendance.getCheckInTime());
+        dto.setCheckOutTime(attendance.getCheckOutTime());
+        dto.setVisitType(attendance.getVisitType());
+        dto.setPurpose(attendance.getPurpose());
+        dto.setNotes(attendance.getNotes());
+
+        if (attendance.getMember() != null) {
+            dto.setMemberId(attendance.getMember().getId());
+            dto.setMember(mapToMemberDto(attendance.getMember()));
+        }
+
+        if (attendance.getClassBooking() != null) {
+            dto.setClassBookingId(attendance.getClassBooking().getId());
+        }
+
+        if (attendance.getPtSession() != null) {
+            dto.setPtSessionId(attendance.getPtSession().getId());
+        }
+
+        return dto;
+    }
+
+    // Member mapping methods
+    public MemberDto mapToMemberDto(MemberProfile memberProfile) {
+        if (memberProfile == null) return null;
+
+        MemberDto dto = new MemberDto();
+        dto.setId(memberProfile.getId());
+        dto.setUserId(memberProfile.getUser().getId());
+        dto.setEmergencyContactName(memberProfile.getEmergencyContactName());
+        dto.setEmergencyContactPhone(memberProfile.getEmergencyContactPhone());
+        dto.setMedicalConditions(memberProfile.getMedicalConditions());
+        dto.setFitnessGoals(memberProfile.getFitnessGoals());
+        dto.setPreferredWorkoutTimes(memberProfile.getPreferredTrainingTime());
+        dto.setMembershipStartDate(memberProfile.getMembershipStartDate());
+        dto.setMembershipEndDate(memberProfile.getMembershipEndDate());
+        dto.setActive(memberProfile.isActive());
+
+        if (memberProfile.getUser() != null) {
+            dto.setUser(mapToUserDto(memberProfile.getUser()));
+        }
+
+        return dto;
+    }
 }

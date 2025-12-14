@@ -1,5 +1,6 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.BillingCycle;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,7 +25,7 @@ public class MembershipPlan extends BaseEntity {
     private String description;
 
     @Column(name = "price", precision = 10, scale = 2, nullable = false)
-    private Double price;
+    private java.math.BigDecimal price;
 
     @Column(name = "billing_cycle", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -61,7 +62,7 @@ public class MembershipPlan extends BaseEntity {
     private Integer maxFreezeDays;
 
     @Column(name = "is_active")
-    private boolean isActive = true;
+    private boolean active = true;
 
     @OneToMany(mappedBy = "membershipPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Subscription> subscriptions = new HashSet<>();

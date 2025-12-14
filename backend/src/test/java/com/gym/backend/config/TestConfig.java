@@ -9,8 +9,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -37,7 +37,7 @@ public class TestConfig {
      * Mock JavaMailSender for testing
      */
     private static class TestJavaMailSender implements JavaMailSender {
-        
+
         @Override
         public MimeMessage createMimeMessage() {
             return new MimeMessage(Session.getDefaultInstance(new Properties()));

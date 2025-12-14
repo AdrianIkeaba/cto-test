@@ -1,5 +1,7 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.ClassDifficulty;
+import com.gym.backend.entity.enums.ClassCategory;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,7 +43,7 @@ public class GymClass extends BaseEntity {
     private boolean isActive = true;
 
     @Column(name = "price", precision = 10, scale = 2)
-    private Double price;
+    private java.math.BigDecimal price;
 
     @OneToMany(mappedBy = "gymClass", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ClassSchedule> schedules = new HashSet<>();

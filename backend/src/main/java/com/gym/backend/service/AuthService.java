@@ -75,8 +75,8 @@ public class AuthService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setIsActive(true);
-        user.setIsEmailVerified(!emailVerificationRequired);
+        user.setActive(true);
+        user.setEmailVerified(!emailVerificationRequired);
 
         // Assign default role (MEMBER)
         Role memberRole = roleRepository.findByName(RoleType.MEMBER)
@@ -92,7 +92,7 @@ public class AuthService {
         }
 
         log.info("Successfully registered user with ID: {}", savedUser.getId());
-        
+
         // Generate tokens and return response
         return generateAuthResponse(savedUser);
     }
@@ -145,7 +145,7 @@ public class AuthService {
 
         // Extract username from refresh token
         String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
-        
+
         // Load user details
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -239,7 +239,7 @@ public class AuthService {
 
         // Update user email verification status
         User user = verificationToken.getUser();
-        user.setIsEmailVerified(true);
+        user.setEmailVerified(true);
         userRepository.save(user);
 
         log.info("Email successfully verified for user ID: {}", user.getId());

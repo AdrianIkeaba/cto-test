@@ -1,6 +1,7 @@
 package com.gym.backend.service;
 
 import com.gym.backend.dto.ClassBookingDto;
+import com.gym.backend.dto.ClassScheduleDto;
 import com.gym.backend.entity.ClassBooking;
 import com.gym.backend.entity.ClassSchedule;
 import com.gym.backend.entity.MemberProfile;
@@ -66,7 +67,7 @@ public class ClassBookingService {
         // Check if member already has a booking for this schedule
         List<ClassBooking> existingBookings = classBookingRepository
                 .findMemberBookingsForScheduleAndTime(memberId, scheduleId, schedule.getStartTime());
-        
+
         if (!existingBookings.isEmpty()) {
             throw new BusinessRuleException("Member already has a booking for this class");
         }
@@ -203,5 +204,19 @@ public class ClassBookingService {
      */
     private String generateBookingReference() {
         return "BK" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+    }
+
+    /**
+     * Get all available classes for booking
+     */
+    @Transactional(readOnly = true)
+    public List<ClassScheduleDto> getAvailableClasses() {
+        log.debug("Fetching available classes for booking");
+        LocalDateTime now = LocalDateTime.now();
+
+        return classScheduleRepository.findByStartTimeAfterAndIsActiveTrue(now).stream()
+            .filter(schedule -> schedule.getCurrentBookings() < schedule.getGymClass().getMaxCapacity())
+            .map(dtoMapper::mapToClassScheduleDto)
+            .collect(Collectors.toList());
     }
 }

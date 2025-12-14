@@ -58,7 +58,7 @@ public class PaymentService {
 
             payment.setGatewayTransactionId(gatewayResult.getTransactionId());
             payment.setGatewayResponse(gatewayResult.getResponse());
-            
+
             if (gatewayResult.isSuccess()) {
                 payment.setStatus(PaymentStatus.COMPLETED);
                 payment.setReceiptNumber(generateReceiptNumber());
@@ -82,7 +82,7 @@ public class PaymentService {
      * Refund a payment
      */
     @Transactional
-    public PaymentDto refundPayment(Long paymentId, Double refundAmount, String reason) {
+    public PaymentDto refundPayment(Long paymentId, java.math.BigDecimal refundAmount, String reason) {
         log.info("Refunding {} from payment {}", refundAmount, paymentId);
 
         Payment payment = paymentRepository.findById(paymentId)
@@ -92,7 +92,7 @@ public class PaymentService {
             throw new IllegalStateException("Can only refund completed payments");
         }
 
-        if (refundAmount > payment.getAmount()) {
+        if (refundAmount.compareTo(payment.getAmount()) > 0) {
             throw new IllegalArgumentException("Refund amount cannot exceed original payment amount");
         }
 
@@ -105,7 +105,7 @@ public class PaymentService {
             );
 
             if (gatewayResult.isSuccess()) {
-                payment.setStatus(refundAmount.equals(payment.getAmount()) ? 
+                payment.setStatus(refundAmount.compareTo(payment.getAmount()) == 0 ?
                     PaymentStatus.REFUNDED : PaymentStatus.PARTIALLY_REFUNDED);
                 log.info("Successfully refunded {} from payment {}", refundAmount, paymentId);
             } else {

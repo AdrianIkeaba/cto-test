@@ -1,5 +1,7 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.PaymentMethod;
+import com.gym.backend.entity.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +18,7 @@ import java.time.LocalDateTime;
 public class Payment extends BaseEntity {
 
     @Column(name = "amount", precision = 10, scale = 2, nullable = false)
-    private Double amount;
+    private java.math.BigDecimal amount;
 
     @Column(name = "currency", length = 3, nullable = false)
     private String currency;

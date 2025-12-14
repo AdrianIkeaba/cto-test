@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public class PTSessionService {
         List<PTSession> conflictingSessions = ptSessionRepository.findSessionsInDateRange(
                 sessionDate.minusMinutes(durationMinutes), sessionDate.plusMinutes(durationMinutes))
                 .stream()
-                .filter(s -> s.getTrainer().getId().equals(trainerId) && 
+                .filter(s -> s.getTrainer().getId().equals(trainerId) &&
                             s.getStatus() != SessionStatus.CANCELLED)
                 .collect(Collectors.toList());
 
@@ -74,7 +75,13 @@ public class PTSessionService {
         session.setSessionType(SessionType.ONE_ON_ONE_TRAINING);
         session.setMember(member);
         session.setTrainer(trainer);
-        session.setPrice(trainer.getHourlyRate() != null ? trainer.getHourlyRate().doubleValue() * (durationMinutes / 60.0) : null);
+        if (trainer.getHourlyRate() != null) {
+            BigDecimal hourlyRate = trainer.getHourlyRate();
+            BigDecimal durationFraction = BigDecimal.valueOf(durationMinutes).divide(BigDecimal.valueOf(60), 2, java.math.RoundingMode.HALF_UP);
+            session.setPrice(hourlyRate.multiply(durationFraction));
+        } else {
+            session.setPrice(null);
+        }
 
         PTSession savedSession = ptSessionRepository.save(session);
         log.info("Created PT session with ID: {}", savedSession.getId());
@@ -121,7 +128,7 @@ public class PTSessionService {
      * Add workout notes to a session
      */
     @Transactional
-    public PTSessionDto addWorkoutNotes(Long sessionId, String notes, String clientFeedback, Double rating) {
+    public PTSessionDto addWorkoutNotes(Long sessionId, String notes, String clientFeedback, BigDecimal rating) {
         log.info("Adding workout notes to PT session {}", sessionId);
 
         PTSession session = ptSessionRepository.findById(sessionId)
@@ -134,7 +141,7 @@ public class PTSessionService {
         session.setWorkoutNotes(notes);
         session.setClientFeedback(clientFeedback);
         if (rating != null) {
-            if (rating < 1.0 || rating > 5.0) {
+            if (rating.compareTo(BigDecimal.ONE) < 0 || rating.compareTo(BigDecimal.valueOf(5.0)) > 0) {
                 throw new BusinessRuleException("Rating must be between 1.0 and 5.0");
             }
             session.setRating(rating);

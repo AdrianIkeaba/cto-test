@@ -34,6 +34,9 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Autowired
+    private org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource;
+
     /**
      * Password encoder bean
      */
@@ -68,7 +71,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints
@@ -81,28 +84,29 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/auth/verify-email").permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/info").permitAll()
-                
+                .requestMatchers(HttpMethod.GET, "/health").permitAll()
+
                 // API Documentation
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-ui.html").permitAll()
-                
+
                 // Static resources
                 .requestMatchers(HttpMethod.GET, "/", "/error").permitAll()
                 .requestMatchers(HttpMethod.GET, "/favicon.ico").permitAll()
-                
+
                 // Admin endpoints - require ADMIN role
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/users/**").hasAnyRole("ADMIN", "STAFF")
                 .requestMatchers(HttpMethod.PUT, "/users/**").hasAnyRole("ADMIN", "STAFF")
                 .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
-                
+
                 // Trainer endpoints - require TRAINER or ADMIN role
                 .requestMatchers("/trainer/**").hasAnyRole("TRAINER", "ADMIN")
-                
+
                 // Member endpoints - require MEMBER role or above
                 .requestMatchers("/member/**").hasAnyRole("MEMBER", "TRAINER", "STAFF", "ADMIN")
-                
+
                 // All other requests require authentication
                 .anyRequest().authenticated()
             );
@@ -113,38 +117,5 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * CORS configuration source
-     */
-    @Bean
-    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Set allowed origins
-        configuration.setAllowedOrigins(java.util.List.of(
-            "http://localhost:3000",
-            "http://127.0.0.1:3000"
-        ));
-        
-        // Set allowed methods
-        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
-        // Set allowed headers
-        configuration.setAllowedHeaders(java.util.List.of(
-            "Authorization",
-            "Content-Type",
-            "X-Requested-With"
-        ));
-        
-        // Allow credentials
-        configuration.setAllowCredentials(true);
-        
-        // Set max age
-        configuration.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        
-        return source;
-    }
+    // CORS configuration is now provided by CorsConfig class
 }

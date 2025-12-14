@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ public class MembershipPlanService {
         log.info("Creating new membership plan: {}", planDto.getName());
 
         MembershipPlan plan = dtoMapper.mapToMembershipPlan(planDto);
-        plan.setIsActive(true);
+        plan.setActive(true);
 
         MembershipPlan savedPlan = membershipPlanRepository.save(plan);
         log.info("Created membership plan with ID: {}", savedPlan.getId());
@@ -82,7 +83,7 @@ public class MembershipPlanService {
         MembershipPlan plan = membershipPlanRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Membership plan not found with ID: " + id));
 
-        plan.setIsActive(false);
+        plan.setActive(false);
         membershipPlanRepository.save(plan);
 
         log.info("Soft deleted membership plan with ID: {}", id);
@@ -105,7 +106,7 @@ public class MembershipPlanService {
     @Transactional(readOnly = true)
     public List<MembershipPlanDto> getActiveMembershipPlans() {
         log.debug("Fetching active membership plans");
-        return membershipPlanRepository.findByIsActiveTrue().stream()
+        return membershipPlanRepository.findByActiveTrue().stream()
                 .map(dtoMapper::mapToMembershipPlanDto)
                 .collect(Collectors.toList());
     }
@@ -127,7 +128,7 @@ public class MembershipPlanService {
     @Transactional(readOnly = true)
     public List<MembershipPlanDto> getMembershipPlansByBillingCycle(BillingCycle billingCycle) {
         log.debug("Fetching membership plans by billing cycle: {}", billingCycle);
-        return membershipPlanRepository.findByBillingCycleAndIsActiveTrue(billingCycle).stream()
+        return membershipPlanRepository.findByBillingCycleAndActiveTrue(billingCycle).stream()
                 .map(dtoMapper::mapToMembershipPlanDto)
                 .collect(Collectors.toList());
     }
@@ -136,7 +137,7 @@ public class MembershipPlanService {
      * Get membership plans by price range
      */
     @Transactional(readOnly = true)
-    public List<MembershipPlanDto> getMembershipPlansByPriceRange(Double minPrice, Double maxPrice) {
+    public List<MembershipPlanDto> getMembershipPlansByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         log.debug("Fetching membership plans by price range: {} - {}", minPrice, maxPrice);
         return membershipPlanRepository.findByPriceRange(minPrice, maxPrice).stream()
                 .map(dtoMapper::mapToMembershipPlanDto)

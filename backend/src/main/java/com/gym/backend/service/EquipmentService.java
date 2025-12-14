@@ -36,7 +36,7 @@ public class EquipmentService {
 
         Equipment equipment = dtoMapper.mapToEquipment(equipmentDto);
         equipment.setStatus(EquipmentStatus.ACTIVE);
-        equipment.setIsActive(true);
+        equipment.setActive(true);
 
         Equipment savedEquipment = equipmentRepository.save(equipment);
         log.info("Created equipment with ID: {}", savedEquipment.getId());
@@ -62,7 +62,7 @@ public class EquipmentService {
         existingEquipment.setModel(equipmentDto.getModel());
         existingEquipment.setSerialNumber(equipmentDto.getSerialNumber());
         existingEquipment.setPurchaseDate(equipmentDto.getPurchaseDate());
-        existingEquipment.setPurchasePrice(equipmentDto.getPurchasePrice() != null ? equipmentDto.getPurchasePrice().doubleValue() : null);
+        existingEquipment.setPurchasePrice(equipmentDto.getPurchasePrice());
         existingEquipment.setWarrantyExpiryDate(equipmentDto.getWarrantyExpiryDate());
         existingEquipment.setMaintenanceDate(equipmentDto.getMaintenanceDate());
         existingEquipment.setNextMaintenanceDate(equipmentDto.getNextMaintenanceDate());
@@ -85,7 +85,7 @@ public class EquipmentService {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with ID: " + id));
 
-        equipment.setIsActive(false);
+        equipment.setActive(false);
         equipmentRepository.save(equipment);
 
         log.info("Soft deleted equipment with ID: {}", id);
@@ -119,7 +119,7 @@ public class EquipmentService {
     @Transactional(readOnly = true)
     public List<EquipmentDto> getEquipmentByCategory(EquipmentCategory category) {
         log.debug("Fetching equipment by category: {}", category);
-        return equipmentRepository.findByCategoryAndIsActiveTrue(category).stream()
+        return equipmentRepository.findByCategoryAndActiveTrue(category).stream()
                 .map(dtoMapper::mapToEquipmentDto)
                 .collect(Collectors.toList());
     }
@@ -130,7 +130,7 @@ public class EquipmentService {
     @Transactional(readOnly = true)
     public List<EquipmentDto> getEquipmentByStatus(EquipmentStatus status) {
         log.debug("Fetching equipment by status: {}", status);
-        return equipmentRepository.findByStatusAndIsActiveTrue(status).stream()
+        return equipmentRepository.findByStatusAndActiveTrue(status).stream()
                 .map(dtoMapper::mapToEquipmentDto)
                 .collect(Collectors.toList());
     }

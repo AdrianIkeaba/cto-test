@@ -171,11 +171,11 @@ public class SubscriptionService {
         }
 
         MembershipPlan plan = subscription.getMembershipPlan();
-        
+
         // Extend subscription based on billing cycle
         LocalDateTime newEndDate;
         if (plan.getDurationDays() != null) {
-            newEndDate = subscription.getEndDate() != null ? 
+            newEndDate = subscription.getEndDate() != null ?
                 subscription.getEndDate().plusDays(plan.getDurationDays()) :
                 LocalDateTime.now().plusDays(plan.getDurationDays());
         } else {
@@ -234,7 +234,7 @@ public class SubscriptionService {
         log.debug("Fetching subscriptions expiring in {} days", daysAhead);
         LocalDateTime currentDate = LocalDateTime.now();
         LocalDateTime expiryDate = currentDate.plusDays(daysAhead);
-        
+
         return subscriptionRepository.findExpiringSubscriptions(currentDate, expiryDate).stream()
                 .map(dtoMapper::mapToSubscriptionDto)
                 .collect(Collectors.toList());
@@ -258,7 +258,7 @@ public class SubscriptionService {
         LocalDateTime nextBilling = subscriptionDto.getStartDate();
         MembershipPlan plan = membershipPlanRepository.findById(subscriptionDto.getMembershipPlanId())
                 .orElseThrow(() -> new ResourceNotFoundException("Membership plan not found"));
-        
+
         return calculateNextBillingDate(plan.getBillingCycle(), nextBilling);
     }
 
@@ -274,5 +274,19 @@ public class SubscriptionService {
             case WEEKLY -> currentDate.plusWeeks(1);
             case DAILY -> currentDate.plusDays(1);
         };
+    }
+
+    /**
+     * Get active subscription for member
+     */
+    @Transactional(readOnly = true)
+    public SubscriptionDto getActiveSubscriptionForMember(Long memberId) {
+        log.debug("Fetching active subscription for member ID: {}", memberId);
+
+        return subscriptionRepository.findActiveSubscriptions().stream()
+            .filter(s -> s.getMember().getId().equals(memberId))
+            .findFirst()
+            .map(dtoMapper::mapToSubscriptionDto)
+            .orElse(null);
     }
 }

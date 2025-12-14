@@ -47,4 +47,9 @@ public interface MemberProfileRepository extends JpaRepository<MemberProfile, Lo
      * Check if user has a member profile
      */
     boolean existsByUserId(Long userId);
+
+    /**
+     * Find all active member profiles
+     */
+    List<MemberProfile> findByActiveTrue();
 }

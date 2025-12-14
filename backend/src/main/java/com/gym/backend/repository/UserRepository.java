@@ -32,7 +32,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Find active users
      */
-    Page<User> findByIsActiveTrue(Pageable pageable);
+    Page<User> findByActiveTrue(Pageable pageable);
 
     /**
      * Find users by role
@@ -49,7 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Find users by email verification status
      */
-    Page<User> findByIsEmailVerified(boolean isEmailVerified, Pageable pageable);
+    Page<User> findByEmailVerified(boolean emailVerified, Pageable pageable);
 
     /**
      * Find users with email verification token
@@ -66,19 +66,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Count active users
      */
-    @Query("SELECT COUNT(u) FROM User u WHERE u.isActive = true")
+    @Query("SELECT COUNT(u) FROM User u WHERE u.active = true")
     long countActiveUsers();
 
     /**
      * Count users by role
      */
-    @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = :roleType AND u.isActive = true")
+    @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = :roleType AND u.active = true")
     long countByRole(@Param("roleType") RoleType roleType);
 
     /**
      * Find users who haven't logged in since a specific date
      */
-    @Query("SELECT u FROM User u WHERE u.lastLoginAt < :date AND u.isActive = true")
+    @Query("SELECT u FROM User u WHERE u.lastLoginAt < :date AND u.active = true")
     List<User> findInactiveUsersSince(@Param("date") java.time.LocalDateTime date);
 
     /**

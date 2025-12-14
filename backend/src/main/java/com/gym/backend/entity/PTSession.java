@@ -1,5 +1,7 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.SessionStatus;
+import com.gym.backend.entity.enums.SessionType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,10 +42,10 @@ public class PTSession extends BaseEntity {
     private String clientFeedback;
 
     @Column(name = "rating", precision = 2, scale = 1)
-    private Double rating; // 1.0 to 5.0
+    private java.math.BigDecimal rating; // 1.0 to 5.0
 
     @Column(name = "price", precision = 10, scale = 2)
-    private Double price;
+    private java.math.BigDecimal price;
 
     @Column(name = "cancellation_reason", columnDefinition = "TEXT")
     private String cancellationReason;

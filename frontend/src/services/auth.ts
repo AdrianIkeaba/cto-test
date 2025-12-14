@@ -11,16 +11,16 @@ import type {
 class AuthService {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-    if (response.data.token && response.data.refreshToken) {
-      apiClient.setAuth(response.data.token, response.data.refreshToken);
+    if (response.data.accessToken && response.data.refreshToken) {
+      apiClient.setAuth(response.data.accessToken, response.data.refreshToken);
     }
     return response.data;
   }
 
   async signup(data: SignupRequest): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/signup', data);
-    if (response.data.token && response.data.refreshToken) {
-      apiClient.setAuth(response.data.token, response.data.refreshToken);
+    const response = await apiClient.post<AuthResponse>('/auth/register', data);
+    if (response.data.accessToken && response.data.refreshToken) {
+      apiClient.setAuth(response.data.accessToken, response.data.refreshToken);
     }
     return response.data;
   }

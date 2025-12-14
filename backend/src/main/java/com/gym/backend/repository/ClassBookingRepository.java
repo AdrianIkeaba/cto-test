@@ -1,6 +1,7 @@
 package com.gym.backend.repository;
 
 import com.gym.backend.entity.ClassBooking;
+import com.gym.backend.entity.ClassSchedule;
 import com.gym.backend.entity.enums.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

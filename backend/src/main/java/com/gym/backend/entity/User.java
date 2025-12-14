@@ -2,6 +2,7 @@ package com.gym.backend.entity;
 
 import com.gym.backend.entity.enums.EmailVerificationStatus;
 import com.gym.backend.entity.enums.PasswordResetStatus;
+import com.gym.backend.entity.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,10 +40,10 @@ public class User extends BaseEntity {
     private LocalDate dateOfBirth;
 
     @Column(name = "is_active")
-    private boolean isActive = true;
+    private boolean active = true;
 
     @Column(name = "is_email_verified")
-    private boolean isEmailVerified = false;
+    private boolean emailVerified = false;
 
     @Column(name = "email_verification_token", length = 255)
     private String emailVerificationToken;
@@ -100,7 +101,7 @@ public class User extends BaseEntity {
         Set<RoleType> userRoleTypes = roles.stream()
             .map(Role::getName)
             .collect(java.util.stream.Collectors.toSet());
-        
+
         for (RoleType roleType : roleTypes) {
             if (userRoleTypes.contains(roleType)) {
                 return true;

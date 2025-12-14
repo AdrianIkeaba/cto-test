@@ -18,28 +18,28 @@ public interface MembershipPlanRepository extends JpaRepository<MembershipPlan, 
     /**
      * Find active membership plans
      */
-    List<MembershipPlan> findByIsActiveTrue();
+    List<MembershipPlan> findByActiveTrue();
 
     /**
      * Find membership plans by billing cycle
      */
-    List<MembershipPlan> findByBillingCycleAndIsActiveTrue(BillingCycle billingCycle);
+    List<MembershipPlan> findByBillingCycleAndActiveTrue(BillingCycle billingCycle);
 
     /**
      * Find membership plans by price range
      */
-    @Query("SELECT mp FROM MembershipPlan mp WHERE mp.price BETWEEN :minPrice AND :maxPrice AND mp.isActive = true")
-    List<MembershipPlan> findByPriceRange(@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice);
+    @Query("SELECT mp FROM MembershipPlan mp WHERE mp.price BETWEEN :minPrice AND :maxPrice AND mp.active = true")
+    List<MembershipPlan> findByPriceRange(@Param("minPrice") java.math.BigDecimal minPrice, @Param("maxPrice") java.math.BigDecimal maxPrice);
 
     /**
      * Find membership plans that include personal training
      */
-    @Query("SELECT mp FROM MembershipPlan mp WHERE mp.includesPersonalTraining = true AND mp.isActive = true")
+    @Query("SELECT mp FROM MembershipPlan mp WHERE mp.includesPersonalTraining = true AND mp.active = true")
     List<MembershipPlan> findPlansWithPersonalTraining();
 
     /**
      * Find membership plans that include group classes
      */
-    @Query("SELECT mp FROM MembershipPlan mp WHERE mp.includesGroupClasses = true AND mp.isActive = true")
+    @Query("SELECT mp FROM MembershipPlan mp WHERE mp.includesGroupClasses = true AND mp.active = true")
     List<MembershipPlan> findPlansWithGroupClasses();
 }

@@ -79,7 +79,7 @@ public class MemberProfileService {
         userRepository.save(user);
 
         log.info("Updated member profile with ID: {}", id);
-        return dtoMapper.mapToUserDto(user);
+        return dtoMapper.mapToMemberDto(updatedProfile);
     }
 
     /**
@@ -118,7 +118,7 @@ public class MemberProfileService {
     @Transactional(readOnly = true)
     public List<MemberProfileDto> getActiveMemberProfiles() {
         log.debug("Fetching active member profiles");
-        return memberProfileRepository.findByIsActiveTrue().stream()
+        return memberProfileRepository.findByActiveTrue().stream()
                 .map(dtoMapper::mapToMemberProfileDto)
                 .collect(Collectors.toList());
     }

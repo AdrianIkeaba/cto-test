@@ -1,5 +1,6 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.InvoiceStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,19 +32,19 @@ public class Invoice extends BaseEntity {
     private InvoiceStatus status;
 
     @Column(name = "subtotal", precision = 10, scale = 2, nullable = false)
-    private Double subtotal;
+    private java.math.BigDecimal subtotal;
 
     @Column(name = "tax_amount", precision = 10, scale = 2)
-    private Double taxAmount = 0.0;
+    private java.math.BigDecimal taxAmount = java.math.BigDecimal.ZERO;
 
     @Column(name = "discount_amount", precision = 10, scale = 2)
-    private Double discountAmount = 0.0;
+    private java.math.BigDecimal discountAmount = java.math.BigDecimal.ZERO;
 
     @Column(name = "total_amount", precision = 10, scale = 2, nullable = false)
-    private Double totalAmount;
+    private java.math.BigDecimal totalAmount;
 
     @Column(name = "paid_amount", precision = 10, scale = 2)
-    private Double paidAmount = 0.0;
+    private java.math.BigDecimal paidAmount = java.math.BigDecimal.ZERO;
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;

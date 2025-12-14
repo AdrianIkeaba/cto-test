@@ -1,5 +1,6 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.SubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -49,7 +50,7 @@ public class Subscription extends BaseEntity {
     private String notes;
 
     @Column(name = "total_paid", precision = 10, scale = 2)
-    private Double totalPaid = 0.0;
+    private java.math.BigDecimal totalPaid = java.math.BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)

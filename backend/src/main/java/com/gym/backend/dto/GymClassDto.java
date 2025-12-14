@@ -38,9 +38,11 @@ public class GymClassDto {
 
     private boolean isActive;
 
-    private Double price;
+    private java.math.BigDecimal price;
 
     private Long trainerId;
+
+    private TrainerDto trainer;
 
     private Set<ClassScheduleDto> schedules;
 }

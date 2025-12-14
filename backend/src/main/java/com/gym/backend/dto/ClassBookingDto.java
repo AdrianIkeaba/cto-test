@@ -30,7 +30,7 @@ public class ClassBookingDto {
 
     private LocalDateTime attendanceTime;
 
-    private Double amountPaid;
+    private java.math.BigDecimal amountPaid;
 
     @NotNull(message = "Member ID is required")
     private Long memberId;

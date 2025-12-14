@@ -48,5 +48,8 @@ public class MemberProfile extends BaseEntity {
     private Integer heightCm;
 
     @Column(name = "weight_kg", precision = 5, scale = 2)
-    private BigDecimal weightKg;
+    private java.math.BigDecimal weightKg;
+
+    @Column(name = "is_active")
+    private boolean active = true;
 }

@@ -1,5 +1,8 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.NotificationType;
+import com.gym.backend.entity.enums.NotificationPriority;
+import com.gym.backend.entity.enums.NotificationStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

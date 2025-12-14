@@ -49,4 +49,9 @@ public interface ClassScheduleRepository extends JpaRepository<ClassSchedule, Lo
      */
     @Query("SELECT cs FROM ClassSchedule cs WHERE cs.gymClass.maxCapacity > cs.currentBookings AND cs.startTime > :currentTime AND cs.isActive = true")
     List<ClassSchedule> findSchedulesWithAvailableCapacity(@Param("currentTime") LocalDateTime currentTime);
+
+    /**
+     * Find schedules after current time and active
+     */
+    List<ClassSchedule> findByStartTimeAfterAndIsActiveTrue(LocalDateTime startTime);
 }

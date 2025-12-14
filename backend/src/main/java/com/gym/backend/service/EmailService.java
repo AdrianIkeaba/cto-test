@@ -17,7 +17,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:noreply@example.com}")
     private String fromEmail;
 
     @Value("${app.frontend.url:http://localhost:3000}")
@@ -32,18 +32,18 @@ public class EmailService {
     public void sendVerificationEmail(String toEmail, String token) {
         try {
             log.info("Sending verification email to: {}", toEmail);
-            
+
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Verify Your Email - Gym Management System");
-            
+
             String verificationLink = backendUrl + "/auth/verify-email?token=" + token;
             String emailBody = buildVerificationEmailBody(toEmail, verificationLink);
-            
+
             message.setText(emailBody);
             mailSender.send(message);
-            
+
             log.info("Verification email sent successfully to: {}", toEmail);
         } catch (Exception e) {
             log.error("Failed to send verification email to: {}", toEmail, e);
@@ -57,18 +57,18 @@ public class EmailService {
     public void sendPasswordResetEmail(String toEmail, String token) {
         try {
             log.info("Sending password reset email to: {}", toEmail);
-            
+
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Password Reset - Gym Management System");
-            
+
             String resetLink = frontendUrl + "/reset-password?token=" + token;
             String emailBody = buildPasswordResetEmailBody(toEmail, resetLink);
-            
+
             message.setText(emailBody);
             mailSender.send(message);
-            
+
             log.info("Password reset email sent successfully to: {}", toEmail);
         } catch (Exception e) {
             log.error("Failed to send password reset email to: {}", toEmail, e);

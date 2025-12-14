@@ -1,66 +1,49 @@
-# Gym Management System
+# Gym Management System (GM-HQ)
 
-A comprehensive, full-stack gym management application designed to streamline operations for fitness centers. Inspired by platforms like GymMaster, this system provides tools for member management, scheduling, billing, and access control.
+## Fixed Issues
 
-## Tech Stack
+1. Added missing enum classes imports in entity files:
+  - Added imports for enum classes in the following entities:
+    - Equipment.java: EquipmentCategory, EquipmentStatus
+    - Invoice.java: InvoiceStatus
+    - User.java: RoleType
+    - Payment.java: PaymentMethod, PaymentStatus
+    - Subscription.java: SubscriptionStatus
+    - MembershipPlan.java: BillingCycle
+    - ClassBooking.java: BookingStatus
+    - ClassSchedule.java: RecurrencePattern
+    - GymClass.java: ClassDifficulty, ClassCategory
+    - NotificationTemplate.java: NotificationType
+    - PTSession.java: SessionStatus, SessionType
+    - Attendance.java: VisitType
+    - Notification.java: NotificationType, NotificationPriority, NotificationStatus
+    - EmailNotification.java: EmailStatus
 
-- **Frontend:** React + Material UI (MUI)
-- **Backend:** Java Spring Boot
-- **Database:** PostgreSQL
-- **Containerization:** Docker & Docker Compose
+2. Added missing ClassSchedule import to ClassBookingRepository
 
-## Repository Structure
+3. Created the missing UserPrincipal class in the security package
 
-The repository is organized into a monorepo structure to facilitate full-stack development, with clear separation of concerns to allow for future splitting into standalone repositories.
+4. Added import for UserPrincipal in MemberController
 
-- `backend/` - Spring Boot application containing the core business logic and API.
-- `frontend/` - React single-page application (SPA) serving as the user interface.
-- `docs/` - Project documentation, including architecture and API specifications.
-- `docker-compose.yml` - Orchestration for local development, provisioning the database and application services.
+5. Added the missing java.util.function.Function import to JwtTokenProvider
 
-## Getting Started
+6. Fixed Lombok boolean property naming issues:
+  - Changed isActive to active in:
+    - Equipment.java
+    - MembershipPlan.java
+    - User.java
+  - Changed isEmailVerified to emailVerified in User.java
+  - Updated related service methods to use setActive() and setEmailVerified()
 
-### Prerequisites
+## Remaining Issues
 
-- Docker and Docker Compose
-- Java 17+ (for local backend development)
-- Node.js 18+ (for local frontend development)
+1. DtoMapper class methods need to be implemented or corrected:
+  - Missing methods like mapToPaymentDto(), mapToPTSessionDto(), mapToAttendanceDto(), etc.
+  - Methods with incorrect parameters
+  - Type conversion issues
 
-### Quick Start (Docker)
+2. JWT library compatibility issue with parserBuilder() method in JwtTokenProvider.java
 
-To start the entire system (database, backend, and frontend) using Docker Compose:
+3. Repository method naming issues (e.g., findByIsActiveTrue needs to be updated to findByActiveTrue)
 
-```bash
-docker-compose up -d
-```
-
-Access the application:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8080/api
-
-### Local Development
-
-#### Backend
-
-1. Navigate to the `backend/` directory.
-2. Run the Spring Boot application:
-
-```bash
-cd backend
-./mvnw spring-boot:run
-```
-
-#### Frontend
-
-1. Navigate to the `frontend/` directory.
-2. Install dependencies and start the dev server:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-## Documentation
-
-For detailed architectural decisions and system design, please refer to [docs/architecture.md](docs/architecture.md).
+4. Controller method compatibility issues (type conversions between DTOs)

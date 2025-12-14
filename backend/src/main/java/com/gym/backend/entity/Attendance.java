@@ -1,5 +1,6 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.VisitType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

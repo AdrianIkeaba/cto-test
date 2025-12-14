@@ -20,22 +20,22 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
     /**
      * Find equipment by category
      */
-    List<Equipment> findByCategoryAndIsActiveTrue(EquipmentCategory category);
+    List<Equipment> findByCategoryAndActiveTrue(EquipmentCategory category);
 
     /**
      * Find equipment by status
      */
-    List<Equipment> findByStatusAndIsActiveTrue(EquipmentStatus status);
+    List<Equipment> findByStatusAndActiveTrue(EquipmentStatus status);
 
     /**
      * Find equipment by location
      */
-    List<Equipment> findByLocationAndIsActiveTrue(String location);
+    List<Equipment> findByLocationAndActiveTrue(String location);
 
     /**
      * Find equipment requiring maintenance
      */
-    @Query("SELECT e FROM Equipment e WHERE e.nextMaintenanceDate <= :currentDate AND e.status = 'ACTIVE' AND e.isActive = true")
+    @Query("SELECT e FROM Equipment e WHERE e.nextMaintenanceDate <= :currentDate AND e.status = 'ACTIVE' AND e.active = true")
     List<Equipment> findEquipmentRequiringMaintenance(@Param("currentDate") LocalDate currentDate);
 
     /**
@@ -46,6 +46,6 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
     /**
      * Find active equipment with warranty expiring soon
      */
-    @Query("SELECT e FROM Equipment e WHERE e.warrantyExpiryDate BETWEEN :currentDate AND :expiryDate AND e.isActive = true")
+    @Query("SELECT e FROM Equipment e WHERE e.warrantyExpiryDate BETWEEN :currentDate AND :expiryDate AND e.active = true")
     List<Equipment> findEquipmentWithWarrantyExpiringSoon(@Param("currentDate") LocalDate currentDate, @Param("expiryDate") LocalDate expiryDate);
 }

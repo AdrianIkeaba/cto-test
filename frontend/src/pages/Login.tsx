@@ -47,8 +47,10 @@ export function LoginPage() {
 
     try {
       await login(email, password);
+      console.log('Login successful, navigating to dashboard');
       navigate('/dashboard');
-    } catch {
+    } catch (error) {
+      console.error('Login error:', error);
       // Error is handled by the store
     }
   };

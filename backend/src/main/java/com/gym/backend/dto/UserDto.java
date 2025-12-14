@@ -36,7 +36,7 @@ public class UserDto {
 
     private boolean isActive;
 
-    private boolean isEmailVerified;
+    private boolean emailVerified;
 
     private LocalDateTime lastLoginAt;
 

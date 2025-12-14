@@ -1,7 +1,11 @@
 package com.gym.backend.controller;
 
 import com.gym.backend.dto.*;
+import com.gym.backend.entity.MemberProfile;
+import com.gym.backend.exception.ResourceNotFoundException;
+import com.gym.backend.repository.MemberProfileRepository;
 import com.gym.backend.service.*;
+import com.gym.backend.util.DtoMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.gym.backend.security.UserPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -35,19 +40,23 @@ public class MemberController {
     private final PTSessionService ptSessionService;
     private final AttendanceService attendanceService;
     private final PaymentService paymentService;
+    private final MemberProfileRepository memberProfileRepository;
+    private final DtoMapper dtoMapper;
 
     // Member Profile Management
     @GetMapping("/profile")
     @Operation(summary = "Get member profile", description = "Get current member's profile information")
     public ResponseEntity<MemberDto> getMemberProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         log.info("Member {} accessing profile", userPrincipal.getId());
-        MemberDto memberProfile = memberProfileService.getMemberProfileByUserId(userPrincipal.getId());
-        return ResponseEntity.ok(memberProfile);
+        MemberProfileDto memberProfileDto = memberProfileService.getMemberProfileByUserId(userPrincipal.getId());
+        MemberProfile memberProfile = memberProfileRepository.findById(memberProfileDto.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Member profile not found with ID: " + memberProfileDto.getId()));
+        return ResponseEntity.ok(dtoMapper.mapToMemberDto(memberProfile));
     }
 
     @PutMapping("/profile")
     @Operation(summary = "Update member profile", description = "Update current member's profile information")
-    public ResponseEntity<MemberDto> updateMemberProfile(@AuthenticationPrincipal UserPrincipal userPrincipal, 
+    public ResponseEntity<MemberDto> updateMemberProfile(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                         @RequestBody MemberDto memberDto) {
         log.info("Member {} updating profile", userPrincipal.getId());
         MemberProfileDto memberProfile = memberProfileService.getMemberProfileByUserId(userPrincipal.getId());

@@ -20,7 +20,7 @@ public class MembershipPlanDto {
 
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be positive")
-    private Double price;
+    private java.math.BigDecimal price;
 
     @NotNull(message = "Billing cycle is required")
     private BillingCycle billingCycle;

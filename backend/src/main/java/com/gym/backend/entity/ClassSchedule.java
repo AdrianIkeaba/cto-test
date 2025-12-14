@@ -1,5 +1,6 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.RecurrencePattern;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

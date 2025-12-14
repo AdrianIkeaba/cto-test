@@ -19,15 +19,18 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
     const initAuth = async () => {
       // Check if we have a valid token
       const hasValidToken = apiClient.isAuthenticated();
-      
+      console.log('ProtectedRoute - Has valid token:', hasValidToken);
+      console.log('ProtectedRoute - Current user:', user);
+
       if (hasValidToken && !user) {
         // Try to load user from token or fetch from API
+        console.log('Has token but no user - might need to fetch user data from API');
         // For now, we'll assume the user is set elsewhere
         setIsInitialized(true);
       } else {
         setIsInitialized(true);
       }
-      
+
       setIsLoading(false);
     };
 

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Function;
 
 import static java.util.Collections.emptySet;
 
@@ -55,11 +56,11 @@ public class JwtTokenProvider {
      */
     private Claims getAllClaimsFromToken(String token) {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+            return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
         } catch (ExpiredJwtException e) {
             log.warn("JWT token is expired: {}", e.getMessage());
             throw new JwtException("JWT token has expired", e);
@@ -190,11 +191,18 @@ public class JwtTokenProvider {
     public Set<String> getRolesFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
         Object rolesObj = claims.get("roles");
-        
-        if (rolesObj instanceof Collection) {
-            return new HashSet<>((Collection<?>) rolesObj);
+
+        if (rolesObj instanceof Collection<?>) {
+            Collection<?> roles = (Collection<?>) rolesObj;
+            Set<String> roleSet = new HashSet<>();
+            for (Object role : roles) {
+                if (role instanceof String) {
+                    roleSet.add((String) role);
+                }
+            }
+            return roleSet;
         }
-        
+
         return emptySet();
     }
 }

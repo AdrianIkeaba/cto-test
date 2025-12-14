@@ -1,5 +1,7 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.EquipmentCategory;
+import com.gym.backend.entity.enums.EquipmentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,7 +41,7 @@ public class Equipment extends BaseEntity {
     private java.time.LocalDate purchaseDate;
 
     @Column(name = "purchase_price", precision = 10, scale = 2)
-    private Double purchasePrice;
+    private java.math.BigDecimal purchasePrice;
 
     @Column(name = "warranty_expiry_date")
     private java.time.LocalDate warrantyExpiryDate;
@@ -58,5 +60,5 @@ public class Equipment extends BaseEntity {
     private String location;
 
     @Column(name = "is_active")
-    private boolean isActive = true;
+    private boolean active = true;
 }

@@ -1,5 +1,6 @@
 package com.gym.backend.entity;
 
+import com.gym.backend.entity.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,7 +37,7 @@ public class ClassBooking extends BaseEntity {
     private java.time.LocalDateTime attendanceTime;
 
     @Column(name = "amount_paid", precision = 10, scale = 2)
-    private Double amountPaid;
+    private java.math.BigDecimal amountPaid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
