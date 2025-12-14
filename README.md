@@ -1,64 +1,66 @@
-# PyLite - Python-like Interpreter (Scaffolding)
+# Gym Management System
 
-PyLite is a pedagogical, Python-inspired interpreter implemented in modern C++. This repository currently contains the initial project scaffolding, including build tooling, placeholder components, and a smoke test to validate the environment.
+A comprehensive, full-stack gym management application designed to streamline operations for fitness centers. Inspired by platforms like GymMaster, this system provides tools for member management, scheduling, billing, and access control.
 
-## Project Structure
+## Tech Stack
 
-```
-.
-├── CMakeLists.txt
-├── include/
-│   └── pylite/
-│       ├── interpreter.hpp
-│       ├── lexer.hpp
-│       └── parser.hpp
-├── src/
-│   ├── interpreter.cpp
-│   ├── lexer.cpp
-│   ├── main.cpp
-│   └── parser.cpp
-└── tests/
-    └── test_smoke.cpp
-```
+- **Frontend:** React + Material UI (MUI)
+- **Backend:** Java Spring Boot
+- **Database:** PostgreSQL
+- **Containerization:** Docker & Docker Compose
 
-- **src/** — Implementation files for the interpreter entry point and placeholder components.
-- **include/** — Public headers that define the lexer, parser, and interpreter interfaces.
-- **tests/** — Unit tests powered by [Catch2](https://github.com/catchorg/Catch2).
+## Repository Structure
 
-## Build Instructions
+The repository is organized into a monorepo structure to facilitate full-stack development, with clear separation of concerns to allow for future splitting into standalone repositories.
 
-The project uses CMake and requires a C++20 compliant compiler (e.g., GCC 11+, Clang 13+, MSVC 2019+).
+- `backend/` - Spring Boot application containing the core business logic and API.
+- `frontend/` - React single-page application (SPA) serving as the user interface.
+- `docs/` - Project documentation, including architecture and API specifications.
+- `docker-compose.yml` - Orchestration for local development, provisioning the database and application services.
+
+## Getting Started
+
+### Prerequisites
+
+- Docker and Docker Compose
+- Java 17+ (for local backend development)
+- Node.js 18+ (for local frontend development)
+
+### Quick Start (Docker)
+
+To start the entire system (database, backend, and frontend) using Docker Compose:
 
 ```bash
-# Configure the project
-cmake -S . -B build
-
-# Build the main executable and tests
-cmake --build build
-
-# Run the interpreter (REPL mode)
-./build/pylite
-
-# Run the interpreter with a source file
-./build/pylite path/to/program.pyl
-
-# Execute the unit test suite
-ctest --test-dir build
+docker-compose up -d
 ```
 
-The first configure step will automatically download Catch2 using CMake's `FetchContent` mechanism.
+Access the application:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080/api
 
-## High-Level Architecture Plan
+### Local Development
 
-The interpreter will evolve through the following layered components:
+#### Backend
 
-1. **Lexer** — Converts raw source text into a token stream. Currently implemented as a whitespace-based splitter for scaffolding purposes.
-2. **Parser** — Transforms tokens into an abstract syntax tree (AST). Today it returns a placeholder representation to demonstrate the pipeline.
-3. **Interpreter** — Evaluates the AST and manages runtime state. The stub implementation prints the AST description to standard output.
-4. **Front-end Interfaces** — Command-line entry point that supports REPL interaction and executing `.pyl` files. This is wired up via `src/main.cpp`.
+1. Navigate to the `backend/` directory.
+2. Run the Spring Boot application:
 
-Future work will flesh out each stage, introduce concrete AST nodes, runtime environments, and error handling.
+```bash
+cd backend
+./mvnw spring-boot:run
+```
 
-## Testing Strategy
+#### Frontend
 
-The repository is configured with Catch2 and currently includes a simple smoke test that exercises the lexer, parser, and interpreter stubs. Additional unit tests and integration tests should be added alongside new features to maintain correctness.
+1. Navigate to the `frontend/` directory.
+2. Install dependencies and start the dev server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Documentation
+
+For detailed architectural decisions and system design, please refer to [docs/architecture.md](docs/architecture.md).
